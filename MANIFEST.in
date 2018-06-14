@@ -1,0 +1,2 @@
+include sxysdk/Tools/bmc/*.*
+include sxysdk/Tools/PSTools/*.*
