@@ -1,2 +1,3 @@
 include sxysdk/Tools/bmc/*.*
 include sxysdk/Tools/PSTools/*.*
+include sxysdk/Tools/TestTools/*.*

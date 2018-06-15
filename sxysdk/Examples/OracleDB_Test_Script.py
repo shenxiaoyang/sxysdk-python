@@ -2,8 +2,10 @@
 import random
 import string
 import time
-
 from ..Database.OracleDB import OracleDB
+
+import logging
+logger = logging.getLogger('sxysdk.FileCopy')
 
 if __name__ == '__main__':
     """
@@ -36,43 +38,43 @@ if __name__ == '__main__':
     size = 10   # 单位GB
     max = 500   # 每个测试数据表中最大数据量（单位:条）
 
-    print('准备连接数据库')
+    logging.debug('准备连接数据库')
     ora = OracleDB(host, username, password, service_name)
-    print('数据库连接成功')
-    print('正在查询数据库所有表空间')
+    logging.debug('数据库连接成功')
+    logging.debug('正在查询数据库所有表空间')
     rt, rs = ora.Query("select * from v$tablespace")    # 查询数据库所有表空间，rs为查询结果
-    print('查询成功')
+    logging.debug('查询成功')
     if rt:  # 查询成功
         for result in rs:
             if result[1] == tablespace_name.upper():    # 如果数据库中存在表空间[tablespace_name],则删除表空间
-                print('表空间[{}]已经存在，删除表空间'.format(tablespace_name))
+                logging.debug('表空间[{}]已经存在，删除表空间'.format(tablespace_name))
                 rt, rs = ora.Exec(
                     'drop tablespace {} including contents and datafiles cascade constraint'.format(tablespace_name))
-                print('表空间[{}]删除完毕'.format(tablespace_name))
+                logging.debug('表空间[{}]删除完毕'.format(tablespace_name))
                 break
         # 创建表空间[tablespace_name]
-        print('即将创建表空间{},{},{}G'.format(tablespace_name,datafile_path,size))
+        logging.debug('即将创建表空间{},{},{}G'.format(tablespace_name,datafile_path,size))
         rt, rs = ora.Exec("create tablespace {} datafile {} size {}G".format(tablespace_name, datafile_path, size))
-        print('创建表空间{} 创建完毕'.format(tablespace_name, datafile_path, size))
+        logging.debug('创建表空间{} 创建完毕'.format(tablespace_name, datafile_path, size))
         if not rt:
-            print('创建表空间失败[{}]'.format(rs))
+            logging.debug('创建表空间失败[{}]'.format(rs))
             exit(1)
 
     else:   # 查询失败
-        print('查询数据库空间失败[{}]'.format(rs))
+        logging.debug('查询数据库空间失败[{}]'.format(rs))
         exit(1)
 
     tables = ['table1','table2','table3','table4','table5','table6','table7','table8','table9']
     #在表空间[tablespace_name]中创建表
     for table_name in tables:
         ora.Exec('create table {}(name VARCHAR2(50),address VARCHAR2(50),age NUMBER) tablespace {}'.format(table_name, tablespace_name))
-        print('Create table {}'.format(table_name))
+        logging.debug('Create table {}'.format(table_name))
 
     num = 0
     while 1:
         rt, rs = ora.Query('select * from v$flash_recovery_area_usage')
         archivelog_used = rs[2][1]
-        print('Query archive log space: {}'.format(archivelog_used))
+        logging.debug('Query archive log space: {}'.format(archivelog_used))
         if int(archivelog_used) > 90:
             break
         num = num + 1
@@ -82,14 +84,14 @@ if __name__ == '__main__':
         addr = ''.join(random.sample(string.ascii_letters + string.digits, 20))
         age = num
         ora.Exec("insert into {} VALUES('{}','{}',{})".format(table_name,name,addr,age)) # 向表中插入随机数据
-        print('Insert valuse into table {}: name({}) addr({}) age({})'.format(table_name,name,addr,age))
+        logging.debug('Insert valuse into table {}: name({}) addr({}) age({})'.format(table_name,name,addr,age))
         rt,rs = ora.Query("select * from {}".format(table_name)) # 插入后查询整个表
-        print('Query table {} all records'.format(table_name))
+        logging.debug('Query table {} all records'.format(table_name))
         rt,count = ora.Query("select count(*) from {}".format(table_name)) # 查询表中数据数量
-        print('Query table {} record count({})'.format(table_name,count))
+        logging.debug('Query table {} record count({})'.format(table_name,count))
         if int(count[0][0]) > max:  # 如果表中数据达到临界值，则清空表
             ora.Exec('drop table {}'.format(table_name))
-            print('Drop tables {}'.format(table_name))
+            logging.debug('Drop tables {}'.format(table_name))
             ora.Exec('create table {}(name VARCHAR2(50),address VARCHAR2(50),age NUMBER )'.format(table_name))
-            print('Create table {}'.format(table_name))
+            logging.debug('Create table {}'.format(table_name))
             time.sleep(0.5)

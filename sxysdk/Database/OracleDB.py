@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
 import cx_Oracle
 
+import logging
+logger = logging.getLogger('sxysdk.OracleDB')
 
 class OracleDB:
     """提供Oracle数据库的基本操作
@@ -50,7 +52,7 @@ class OracleDB:
         if cur:
             return cur
         else:
-            print("#Error# Get New Cursor Failed.")
+            logging.debug("#Error# Get New Cursor Failed.")
             return None
 
     def DelCursor(self, cur):
@@ -100,7 +102,6 @@ class OracleDB:
 
     # 查询
     def Query(self, sql, nStart=0, nNum=-1):
-        # print(sql)
         rt = None
         rs = []
 
@@ -128,7 +129,6 @@ class OracleDB:
 
     # 增、删、改
     def Exec(self, sql):
-        # print(sql)
         # 获取cursor
         rt = None
         rs = None

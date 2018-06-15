@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
+
 import logging
+logger = logging.getLogger('sxysdk.IPMI')
 
-logger = logging.getLogger('infocorecommon.IPMI')
-
-# 设置IPMItool.exe的路径
-IPMITool = r'{}\InfoCoreTools\bmc\ipmitool.exe'.format(os.path.dirname(os.path.abspath(sys.argv[0])))
+father = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+IPMITool = r'{}\Tools\bmc\ipmitool.exe'.format(father)
 
 
 def power_on(ip, username, password):

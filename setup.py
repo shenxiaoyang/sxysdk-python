@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name='sxysdk',
     packages=find_packages(),
-    version="0.0.17",
+    version="0.0.20",
     description="sxy python sdk",
     author="shenxiaoyang",
     author_email="380944919@infocore.cn",
